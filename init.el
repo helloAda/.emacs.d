@@ -3,7 +3,54 @@
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
 
-(package-initialize)
+;;当Emacs的版本大于24的时候
+
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (package-initialize)
+  ;;把melpa插件源加载到系统里面
+  (add-to-list 'package-archives '("melpa" . "http://elpa.emacs-china.org/melpa/") t)
+  )
+
+(require 'cl)
+;;定义一个packages的列表
+(defvar my/packages '(
+		      ;;自动补全
+		      company
+		      ;;主题样式
+		      monokai-theme
+		      ;;空格方便删除
+		      hungry-delete
+		      ;;方便搜索等功能提示
+		      swiper
+		      counsel
+		      ;;自动补全括号
+		      smartparens
+		      ) "Default packages")
+;;因为执行package-autoremove只考虑package-selected-packages里的包，不会考虑我们需要的的
+;;所以把我们需要的包赋给它，在执行的时候就不会提示去删除需要的包了
+(setq package-selected-packages 'my/packages)
+;;定义一个方法用来判断my/packages中定义的packages是否安装了
+;;全部安装完了返回nil 否则返回t
+(defun my/packages-installed-p ()
+     (loop for pkg in my/packages
+           when (not (package-installed-p pkg)) do (return nil)
+           finally (return t)))
+
+;;执行上面定义的方法，只要有一个没有安装就会安装它
+(unless (my/packages-installed-p)
+  (message "%s" "Refreshing package database...")
+  (package-refresh-contents)
+  (dolist (pkg my/packages)
+    (when (not (package-installed-p pkg))
+      (package-install pkg))))
+
+;;对应文件自动切换到对应mode
+;;(setq auto-mode-alist
+;;      (append
+;;       '(("\\.py\\'" . xxx-mode))
+;;       auto-mode-alist))
+
 ; 开启全局 Company 补全
 (global-company-mode 1)
 ;; 关闭工具栏，tool-bar-mode 即为一个 Minor Mode
@@ -44,16 +91,36 @@
 (setq org-agenda-files '("~/org"))
 ;; 设置 org-agenda 打开快捷键
 (global-set-key (kbd "C-c a") 'org-agenda)
+;;加载主题样式
+(load-theme 'monokai t)
+;;方便空格删除使用
+(require 'hungry-delete)
+(global-hungry-delete-mode)
+;;方便搜索等功能提示
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(global-set-key "\C-s" 'swiper)
+;;ivy-resume这个是记录你上一次的操作
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "C-h f") 'counsel-describe-function)
+(global-set-key (kbd "C-h v") 'counsel-describe-variable)
+
+;;自动补全括号
+(require 'smartparens-config)
+(smartparens-global-mode t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (org company))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+ ;;代码提示延迟0.1s
+ '(company-idle-delay 0.1)
+ ;;输入2个字符就提示
+ '(company-minimum-prefix-length 2)
+ '(custom-safe-themes
+   (quote
+    ("c3d4af771cbe0501d5a865656802788a9a0ff9cf10a7df704ec8b8ef69017c68" default))))
