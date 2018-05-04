@@ -9,7 +9,7 @@
   (require 'package)
   (package-initialize)
   ;;把melpa插件源加载到系统里面
-  (add-to-list 'package-archives '("melpa" . "http://elpa.emacs-china.org/melpa/") t)
+  (add-to-list 'package-archives '("melpa" . "http://elpa.emacs-china.org/melpa/"))
   )
 
 (require 'cl)
@@ -26,6 +26,14 @@
 		      counsel
 		      ;;自动补全括号
 		      smartparens
+		      ;;Python开发环境
+		      elpy
+		      ;;Python虚拟环境
+		      virtualenvwrapper
+		      ;;Python实时语法检查
+		      flycheck
+		      ;;遵循PEP8规范
+		      py-autopep8
 		      ) "Default packages")
 ;;因为执行package-autoremove只考虑package-selected-packages里的包，不会考虑我们需要的的
 ;;所以把我们需要的包赋给它，在执行的时候就不会提示去删除需要的包了
@@ -48,7 +56,7 @@
 ;;对应文件自动切换到对应mode
 ;;(setq auto-mode-alist
 ;;      (append
-;;       '(("\\.py\\'" . xxx-mode))
+;;       '(("\\.py\\'" . elpy-mode))
 ;;       auto-mode-alist))
 
 ; 开启全局 Company 补全
@@ -112,15 +120,43 @@
 (require 'smartparens-config)
 (smartparens-global-mode t)
 
+;;使用elpy
+(require 'elpy)
+(elpy-enable)
+;;使用IPython
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i --simple-prompt")
+
+;;虚拟环境配置
+(require 'virtualenvwrapper)
+(venv-initialize-interactive-shells);;如果需要交互式shells支持
+(venv-initialize-eshell);;如果需要shells支持
+(setq venv-location "~/python_env/")
+
+;;使用flycheck代替flymake
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+;;遵循pep8规范
+(require 'py-autopep8)
+(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;;代码提示延迟0.1s
  '(company-idle-delay 0.1)
- ;;输入2个字符就提示
  '(company-minimum-prefix-length 2)
  '(custom-safe-themes
    (quote
-    ("c3d4af771cbe0501d5a865656802788a9a0ff9cf10a7df704ec8b8ef69017c68" default))))
+    ("c3d4af771cbe0501d5a865656802788a9a0ff9cf10a7df704ec8b8ef69017c68" default)))
+ '(package-selected-packages
+   (quote
+    (elpy smartparens org monokai-theme hungry-delete counsel company))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
