@@ -4,11 +4,11 @@
 ;; You may delete these explanatory comments.
 
 ;;当Emacs的版本大于24的时候
-
 (when (>= emacs-major-version 24)
   (require 'package)
   (package-initialize)
   ;;把melpa插件源加载到系统里面
+  ;; 注意 elpa.emacs-china.org 是 Emacs China 中文社区在国内搭建的一个 ELPA 镜像
   (add-to-list 'package-archives '("melpa" . "http://elpa.emacs-china.org/melpa/"))
   )
 
@@ -37,7 +37,7 @@
 		      ) "Default packages")
 ;;因为执行package-autoremove只考虑package-selected-packages里的包，不会考虑我们需要的的
 ;;所以把我们需要的包赋给它，在执行的时候就不会提示去删除需要的包了
-(setq package-selected-packages 'my/packages)
+(setq package-selected-packages my/packages)
 ;;定义一个方法用来判断my/packages中定义的packages是否安装了
 ;;全部安装完了返回nil 否则返回t
 (defun my/packages-installed-p ()
@@ -53,17 +53,11 @@
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-;;对应文件自动切换到对应mode
-;;(setq auto-mode-alist
-;;      (append
-;;       '(("\\.py\\'" . elpy-mode))
-;;       auto-mode-alist))
-
 ; 开启全局 Company 补全
-(global-company-mode 1)
+(add-hook 'after-init-hook 'global-company-mode)
 ;; 关闭工具栏，tool-bar-mode 即为一个 Minor Mode
 (tool-bar-mode -1)
-;; 关闭文件滑动控件
+;; 关闭文件滑动控n件
 (scroll-bar-mode -1)
 ;; 显示行号
 (global-linum-mode 1)
@@ -123,6 +117,12 @@
 ;;使用elpy
 (require 'elpy)
 (elpy-enable)
+;;对应文件自动切换到对应mode
+;;(setq auto-mode-alist
+;;      (append
+;;       '(("\\.py\\'" . elpy-mode))
+;;       auto-mode-alist))
+
 ;;使用IPython
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i --simple-prompt")
@@ -146,17 +146,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;;自动补全延迟
  '(company-idle-delay 0.1)
+ ;;2个字母开始自动补全
  '(company-minimum-prefix-length 2)
  '(custom-safe-themes
    (quote
-    ("c3d4af771cbe0501d5a865656802788a9a0ff9cf10a7df704ec8b8ef69017c68" default)))
- '(package-selected-packages
-   (quote
-    (elpy smartparens org monokai-theme hungry-delete counsel company))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+    ("c3d4af771cbe0501d5a865656802788a9a0ff9cf10a7df704ec8b8ef69017c68" default))))
